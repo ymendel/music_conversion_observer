@@ -20,6 +20,9 @@ module ConversionObserver
       @files_to_check.uniq!
     end
     
+    def remove_file_to_check(file)
+      @files_to_check.delete(file)
+    end
     
     private
     

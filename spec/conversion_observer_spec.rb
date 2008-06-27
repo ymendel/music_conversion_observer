@@ -76,6 +76,10 @@ describe ConversionObserver do
   it 'should add a file to check' do
     ConversionObserver.should respond_to(:add_file_to_check)
   end
+  
+  it 'should remove a file to check' do
+    ConversionObserver.should respond_to(:remove_file_to_check)
+  end
     
   describe 'files to check' do
     it 'should default to an empty array' do
@@ -106,6 +110,19 @@ describe ConversionObserver do
         ConversionObserver.add_file_to_check(@file)
         ConversionObserver.add_file_to_check(@file)
         ConversionObserver.files_to_check.should == [@file]
+      end
+    end
+    
+    describe 'when removed' do
+      before :each do
+        ConversionObserver.send(:clear_files_to_check)
+        @file = stub('file')
+        ConversionObserver.add_file_to_check(@file)
+      end
+      
+      it 'should remove the file from the array' do
+        ConversionObserver.remove_file_to_check(@file)
+        ConversionObserver.files_to_check.should == []
       end
     end
   end
