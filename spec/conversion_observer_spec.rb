@@ -68,4 +68,45 @@ describe ConversionObserver do
       end
     end
   end
+  
+  it 'should have files to check' do
+    ConversionObserver.should respond_to(:files_to_check)
+  end
+  
+  it 'should add a file to check' do
+    ConversionObserver.should respond_to(:add_file_to_check)
+  end
+    
+  describe 'files to check' do
+    it 'should default to an empty array' do
+      ConversionObserver.files_to_check.should == []
+    end
+    
+    describe 'when added' do
+      before :each do
+        ConversionObserver.send(:clear_files_to_check)
+      end
+      
+      it 'should be in the returned array' do
+        @file = stub('file')
+        ConversionObserver.add_file_to_check(@file)
+        ConversionObserver.files_to_check.should == [@file]
+      end
+      
+      it 'should add to the end of the array' do
+        @file = stub('file')
+        @other_file = stub('other file')
+        ConversionObserver.add_file_to_check(@file)
+        ConversionObserver.add_file_to_check(@other_file)
+        ConversionObserver.files_to_check.should == [@file, @other_file]
+      end
+      
+      it 'should remove duplicates' do
+        @file = stub('file')
+        ConversionObserver.add_file_to_check(@file)
+        ConversionObserver.add_file_to_check(@file)
+        ConversionObserver.files_to_check.should == [@file]
+      end
+    end
+  end
 end
