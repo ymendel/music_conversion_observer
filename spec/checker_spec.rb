@@ -188,13 +188,39 @@ describe ConversionObserver::Checker do
     end
   end
   
-  it 'should approve files'
+  it 'should approve files' do
+    @checker.should respond_to(:approve_files)
+  end
   
   describe 'when approving files' do
-    it 'should accept files'
-    it 'should require files'
+    before :each do
+      @files = Array.new(3) { |i|  stub("file #{i+1}") }
+      ConversionObserver.stubs(:remove_file_to_check)
+      ConversionObserver.stubs(:add_file_to_convert)
+    end
     
-    it 'should remove the files from the check queue'
-    it 'should add the files to the convert queue'
+    it 'should accept files' do
+      lambda { @checker.approve_files(@files) }.should_not raise_error(ArgumentError)
+    end
+    
+    it 'should require files' do
+      lambda { @checker.approve_files }.should raise_error(ArgumentError)
+    end
+    
+    it 'should remove the files from the check queue' do
+      @files.each do |file|
+        ConversionObserver.expects(:remove_file_to_check).with(file)
+      end
+      
+      @checker.approve_files(@files)
+    end
+    
+    it 'should add the files to the convert queue' do
+      @files.each do |file|
+        ConversionObserver.expects(:add_file_to_convert).with(file)
+      end
+      
+      @checker.approve_files(@files)
+    end
   end
 end

@@ -32,6 +32,12 @@ module ConversionObserver
       end
     end
     
+    def approve_files(files)
+      files.each do |file|
+        ConversionObserver.remove_file_to_check(file)
+        ConversionObserver.add_file_to_convert(file)
+      end
+    end
     
     private
     
