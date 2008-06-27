@@ -92,4 +92,20 @@ describe ConversionObserver::Collector do
       @collector.run
     end
   end
+  
+  it 'should shut down' do
+    @collector.should respond_to(:shutdown)
+  end
+  
+  describe 'when shutting down' do
+    before :each do
+      @stream = stub('stream')
+      @collector.stubs(:stream).returns(@stream)
+    end
+    
+    it 'should shut down the stream' do
+      @stream.expects(:shutdown)
+      @collector.shutdown
+    end
+  end
 end

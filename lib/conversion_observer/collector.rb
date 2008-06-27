@@ -22,5 +22,9 @@ module ConversionObserver
     def run
       stream.run
     end
+    
+    def shutdown
+      stream.shutdown
+    end
   end
 end
