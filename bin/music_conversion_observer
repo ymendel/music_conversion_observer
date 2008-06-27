@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+$:.unshift('./lib')
+require 'conversion_observer'
+
+threads = {}
+threads[:collector] = Thread.new do
+  begin
+    collector = ConversionObserver::Collector.new
+    collector.prepare
+    collector.run
+  rescue Interrupt
+    collector.shutdown
+  end
+end
+
+threads[:checker] = Thread.new do
+  checker = ConversionObserver::Checker.new
+  
+  loop do
+    if checker.run
+      sleep 0.5
+    else
+      Thread.pass
+    end
+  end
+end
+
+threads[:consumer] = Thread.new do
+  consumer = ConversionObserver::Consumer.new
+  
+  loop do
+    consumer.run or Thread.pass
+  end
+end
+
+threads.each { |name, thread|  thread.join }
