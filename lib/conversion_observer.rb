@@ -22,4 +22,5 @@ module ConversionObserver
   end
 end
 
+require 'conversion_observer/collector'
 require 'conversion_observer/consumer'
