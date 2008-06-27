@@ -34,4 +34,5 @@ module ConversionObserver
 end
 
 require 'conversion_observer/collector'
+require 'conversion_observer/checker'
 require 'conversion_observer/consumer'
