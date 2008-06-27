@@ -19,13 +19,32 @@ describe ConversionObserver::Consumer do
     end
   end
   
-  it 'should convert'
+  it 'should convert' do
+    @consumer.should respond_to(:convert)
+  end
   
   describe 'when converting' do
-    it 'should accept a file'
-    it 'should require a file'
+    before :each do
+      @file = 'filename'
+      @consumer.stubs(:system)
+    end
     
-    it 'should call the flac2mp3 command on the file'
-    it 'should pass the --delete flag to flac2mp3'
+    it 'should accept a file' do
+      lambda { @consumer.convert(@file) }.should_not raise_error(ArgumentError)
+    end
+    
+    it 'should require a file' do
+      lambda { @consumer.convert }.should raise_error(ArgumentError)
+    end
+    
+    it 'should call the flac2mp3 command on the file' do
+      @consumer.expects(:system).with('flac2mp3', anything, @file)
+      @consumer.convert(@file)
+    end
+    
+    it 'should pass the --delete flag to flac2mp3' do
+      @consumer.expects(:system).with('flac2mp3', '--delete', anything)
+      @consumer.convert(@file)
+    end
   end
 end
