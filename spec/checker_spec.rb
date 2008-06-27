@@ -5,20 +5,62 @@ describe ConversionObserver::Checker do
     @checker = ConversionObserver::Checker.new
   end
   
-  it 'should run'
+  it 'should run' do
+    @checker.should respond_to(:run)
+  end
   
   describe 'when run' do
-    it 'should get files to check'
+    before :each do
+      @checker.stubs(:check_files)
+      @checker.stubs(:approve_files)
+    end
+    
+    it 'should get files to check' do
+      ConversionObserver.expects(:files_to_check).returns([])
+      @checker.run
+    end
     
     describe 'when there are files to check' do
-      it 'should check files'
-      it 'should approve the files that checked out okay'
-      it 'should return true'
+      before :each do
+        @files = Array.new(3) { |i|  stub("file #{i+1}") }
+        ConversionObserver.stubs(:files_to_check).returns(@files)
+      end
+      
+      it 'should check files' do
+        @checker.expects(:check_files).with(@files)
+        @checker.run
+      end
+      
+      it 'should approve the files that checked out okay' do
+        @okay_files = stub('okay files')
+        @checker.stubs(:check_files).returns(@okay_files)
+        @checker.expects(:approve_files).with(@okay_files)
+        @checker.run
+      end
+      
+      it 'should return true' do
+        @checker.run.should be(true)
+      end
     end
     
     describe 'when there are no files to check' do
-      it 'should return nil'
-      it 'should not check files'
+      before :each do
+        ConversionObserver.stubs(:files_to_check).returns([])
+      end
+      
+      it 'should return nil' do
+        @checker.run.should be_nil
+      end
+      
+      it 'should not check files' do
+        @checker.expects(:check_files).never
+        @checker.run
+      end
+      
+      it 'should not approve files' do
+        @checker.expects(:approve_files).never
+        @checker.run
+      end
     end
   end
   
