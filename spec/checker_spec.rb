@@ -11,8 +11,8 @@ describe ConversionObserver::Checker do
   
   describe 'when run' do
     before :each do
-      @checker.stubs(:check_files)
       @checker.stubs(:approve_files)
+      @checker.stubs(:check_file)
     end
     
     it 'should get files to check' do
@@ -64,33 +64,117 @@ describe ConversionObserver::Checker do
     end
   end
   
-  it 'should check files'
-  
-  describe 'when checking files' do
-    it 'should accept files'
-    it 'should require files'
-    
-    it 'should check each file'
-    it 'should return the files that checked out okay'
+  it 'should check files' do
+    @checker.should respond_to(:check_files)
   end
   
-  it 'should check a file'
-  
-  describe 'when checking a file' do
-    it 'should accept a file'
-    it 'should require a file'
-    
-    it 'should get the file size'
-    it 'should compare the file size to the cached size'
-    
-    describe 'when the file size is the same' do
-      it 'should return true'
-      it 'should remove the cached size'
+  describe 'when checking files' do
+    before :each do
+      @files = Array.new(3) { |i|  stub("file #{i+1}") }
     end
     
-    describe 'when the file size is different' do
-      it 'should return false'
-      it 'should leave the cached size'
+    it 'should accept files' do
+      lambda { @checker.check_files(@files) }.should_not raise_error(ArgumentError)
+    end
+    
+    it 'should require files' do
+      lambda { @checker.check_files }.should raise_error(ArgumentError)
+    end
+    
+    it 'should check each file' do
+      @files.each do |file|
+        @checker.expects(:check_file).with(file)
+      end
+      
+      @checker.check_files(@files)
+    end
+    
+    it 'should return the files that checked out okay' do
+      @files.each_with_index do |file, i|
+        @checker.stubs(:check_file).with(file).returns((i%2).zero?)
+      end
+      
+      @checker.check_files(@files).should == @files.values_at(0,2)
+    end
+  end
+  
+  it 'should check a file' do
+    @checker.should respond_to(:check_file)
+  end
+  
+  describe 'when checking a file' do
+    before :each do
+      @file = stub('file')
+      File.stubs(:size)
+    end
+    
+    it 'should accept a file' do
+      lambda { @checker.check_file(@file) }.should_not raise_error(ArgumentError)
+    end
+    
+    it 'should require a file' do
+      lambda { @checker.check_file }.should raise_error(ArgumentError)
+    end
+    
+    it 'should get the file size' do
+      File.expects(:size).with(@file)
+      @checker.check_file(@file)
+    end
+    
+    describe 'when the file size has not been cached' do
+      before :each do
+        @checker.send(:clear_files)
+        @size = stub('size')
+        File.stubs(:size).with(@file).returns(@size)
+      end
+      
+      it 'should return false' do
+        @checker.check_file(@file).should be(false)
+      end
+      
+      it 'should add the size to the cache' do
+        @checker.check_file(@file)
+        @checker.files[@file].should == @size
+      end
+    end
+    
+    describe 'when the file size has been cached' do
+      before :each do
+        @checker.send(:clear_files)
+        @size = stub('size')
+        @checker.files[@file] = @size
+      end
+            
+      describe 'and the new file size is different' do
+        before :each do
+          @other_size = stub('other size')
+          File.stubs(:size).with(@file).returns(@other_size)
+        end
+        
+        it 'should return false' do
+          @checker.check_file(@file).should be(false)
+        end
+        
+        it 'should modify the cached size' do
+          @checker.check_file(@file)
+          @checker.files[@file].should == @other_size
+        end
+      end
+      
+      describe 'and the new file size is the same' do
+        before :each do
+          File.stubs(:size).with(@file).returns(@size)
+        end
+        
+        it 'should return true' do
+          @checker.check_file(@file).should be(true)
+        end
+        
+        it 'should remove the cached size' do
+          @checker.check_file(@file)
+          @checker.files.should_not include(@file)
+        end
+      end
     end
   end
   
