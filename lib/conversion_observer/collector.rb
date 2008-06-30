@@ -6,7 +6,7 @@ module ConversionObserver
     attr_reader :stream
     
     def prepare
-      @stream = FSEvents::Stream.watch("#{ENV['HOME']}/Music/to convert", &self.class.stream_callback)
+      @stream = FSEvents::Stream.watch("#{ENV['HOME']}/Music/to convert", :mode => :cache, &self.class.stream_callback)
     end
     
     class << self

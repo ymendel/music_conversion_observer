@@ -21,7 +21,12 @@ describe ConversionObserver::Collector do
     end
     
     it 'should create a stream for the music conversion directory' do
-      FSEvents::Stream.expects(:watch).with("#{ENV['HOME']}/Music/to convert")
+      FSEvents::Stream.expects(:watch).with("#{ENV['HOME']}/Music/to convert", anything)
+      @collector.prepare
+    end
+    
+    it 'should create a stream using the cache mode' do
+      FSEvents::Stream.expects(:watch).with(anything, has_entry(:mode => :cache))
       @collector.prepare
     end
     
