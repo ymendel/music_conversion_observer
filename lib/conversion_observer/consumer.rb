@@ -10,7 +10,7 @@ module ConversionObserver
     end
     
     def convert(file)
-      system('flac2mp3', '--delete', file)
+      system('flac2mp3', file, '--delete', '--silent')
     end
   end
 end

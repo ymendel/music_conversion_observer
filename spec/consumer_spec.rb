@@ -67,12 +67,17 @@ describe ConversionObserver::Consumer do
     end
     
     it 'should call the flac2mp3 command on the file' do
-      @consumer.expects(:system).with('flac2mp3', anything, @file)
+      @consumer.expects(:system).with('flac2mp3', @file, anything, anything)
       @consumer.convert(@file)
     end
     
     it 'should pass the --delete flag to flac2mp3' do
-      @consumer.expects(:system).with('flac2mp3', '--delete', anything)
+      @consumer.expects(:system).with('flac2mp3', anything, '--delete', anything)
+      @consumer.convert(@file)
+    end
+    
+    it 'should pass the --silent flag to flac2mp3' do
+      @consumer.expects(:system).with('flac2mp3', anything, anything, '--silent')
       @consumer.convert(@file)
     end
   end
